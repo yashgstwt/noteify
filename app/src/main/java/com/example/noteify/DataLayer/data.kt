@@ -18,10 +18,10 @@ class DrawManager {
     private val _redoList = mutableStateListOf<Lines>()
     internal val pathList : SnapshotStateList<Lines> = _undoList
 
-    var bgColor by mutableStateOf(Color.White)
+    var bgColor by mutableStateOf(Color.Black)
     private set
 
-    var penColor by  mutableStateOf(Color.Black)
+    var penColor by  mutableStateOf(Color.White)
     private set
 
     var strokeWidth by  mutableFloatStateOf(5f)
