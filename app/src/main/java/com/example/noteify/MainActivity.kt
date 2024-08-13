@@ -4,8 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.noteify.DataLayer.DrawManager
-import com.example.noteify.DataLayer.DrawingCanvas
+import androidx.activity.viewModels
+import com.example.noteify.UILayer.DrawingCanvas
+import com.example.noteify.notesViewModal.CanvasViewModal
 import com.example.noteify.ui.theme.NoteifyTheme
 
 class MainActivity : ComponentActivity() {
@@ -14,8 +15,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NoteifyTheme {
-                val  drawManager = DrawManager()
-                DrawingCanvas(drawManager)
+                val canvasViewModal : CanvasViewModal by viewModels()
+
+                DrawingCanvas(canvasViewModal)
             }
         }
     }

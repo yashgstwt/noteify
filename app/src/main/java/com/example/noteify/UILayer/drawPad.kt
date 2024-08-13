@@ -1,4 +1,4 @@
-package com.example.noteify.DataLayer
+package com.example.noteify.UILayer
 
 import android.util.Log
 import androidx.compose.foundation.Canvas
@@ -28,18 +28,19 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+
+import com.example.noteify.notesViewModal.CanvasViewModal
 import io.ak1.drawbox.createPath
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.coroutineScope
 import androidx.compose.foundation.layout.Box as Box
 
 @Composable
-fun DrawingCanvas(drawManager: DrawManager){
+fun DrawingCanvas(viewModal : CanvasViewModal  ){
 
     var scale by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(0f) }
     var offsetY by remember { mutableFloatStateOf(0f) }
-    //var currentPointer by remember { mutableStateOf<Offset?>(null) }
+
 
 val ShowValues = "LOG"
 
@@ -52,16 +53,16 @@ val ShowValues = "LOG"
                     offsetX += pan.x
                     offsetY += pan.y
 
-                    Log.d(
-                        ShowValues,
-                        "scale : $scale , offsetX : $offsetX  + pan.x ${pan.x} : , offsetY : $offsetY  + pan.y ${pan.y} :"
-                    )
+//                    Log.d(
+//                        ShowValues,
+//                        "scale : $scale , offsetX : $offsetX  + pan.x ${pan.x} : , offsetY : $offsetY  + pan.y ${pan.y} :"
+//                    )
                 }
             }
     ){
         Canvas(modifier = Modifier
             .fillMaxSize()
-            .background(drawManager.bgColor)
+            .background(viewModal.bgColor)
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = { offset ->
@@ -72,11 +73,11 @@ val ShowValues = "LOG"
                             (offset.y - offsetY)
                         )
                        // currentPointer = transformedOffset
-                        Log.d(
-                            ShowValues,
-                            "onDragStart == offset.x : ${offset.x} - offsetX : ${offsetX} / scale :${scale} = ${(offset.x - offsetX) } --  Y:  ${(offset.y - offsetY) / scale} "
-                        )
-                        drawManager.insertNewPath(transformedOffset)
+//                        Log.d(
+//                            ShowValues,
+//                            "onDragStart == offset.x : ${offset.x} - offsetX : ${offsetX} / scale :${scale} = ${(offset.x - offsetX) } --  Y:  ${(offset.y - offsetY) / scale} "
+//                        )
+                        viewModal.insertNewPath(transformedOffset)
                     },
                     onDrag = { change, _ ->
                         //change.position.x : it shows the current position of the pointer on the input screen , if we touch on 200 without zoom or pan it is 200 , and even if we zoom or pan it will show the current position i.e 200f
@@ -84,12 +85,11 @@ val ShowValues = "LOG"
                             (change.position.x - offsetX),
                             (change.position.y - offsetY)
                         )
-
-                        Log.d(
-                            ShowValues,
-                            "onDrag == change.position.x : ${change.position.x} - offsetX : ${offsetX} / scale ${scale} = ${(change.position.x - offsetX) } --  Y:  ${(change.position.y - offsetY) / scale} "
-                        )
-                        drawManager.updateLatestPath(newOffset)
+//                        Log.d(
+//                            ShowValues,
+//                            "onDrag == change.position.x : ${change.position.x} - offsetX : ${offsetX} / scale ${scale} = ${(change.position.x - offsetX) } --  Y:  ${(change.position.y - offsetY) / scale} "
+//                        )
+                        viewModal.updateLatestPath(newOffset)
                     }
                 )
             }
@@ -105,12 +105,13 @@ val ShowValues = "LOG"
 
             drawLine(Color.Blue , start =  Offset.Zero , end = Offset(size.width, 0f), strokeWidth = 5f)
 
-            drawManager.pathList.forEach {
+            viewModal.selectedCanvas.path.forEach {
                     pw ->
                 //.onEach { Log.d(ShowValues, " in drawing phase :: X: ${it.x} + Y: ${it.y}") }
+
                 drawPath(
-                    path = createPath (pw.path) ,
-                    color = pw.color,
+                    path = createPath(pw.path) ,
+                    color = Color(pw.color) ,
                     alpha = pw.alpha,
                     style = Stroke(
                         width = pw.strokeWidth,
@@ -123,13 +124,12 @@ val ShowValues = "LOG"
     }
 
     Row(modifier= Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly , verticalAlignment = Alignment.Bottom) {
-        Button(onClick = { drawManager.undo() }, Modifier.size(80.dp)) {
+        Button(onClick = { viewModal.undo() }, Modifier.size(80.dp,40.dp)) {
             Text(text = "undo")
         }
-        Button(onClick = {drawManager.redo() }, Modifier.size(80.dp)) {
+        Button(onClick = {viewModal.redo() }, Modifier.size(80.dp, 40.dp)) {
             Text(text = "redo")
         }
     }
-
 }
 
