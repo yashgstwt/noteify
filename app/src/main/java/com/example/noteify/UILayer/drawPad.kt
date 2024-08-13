@@ -6,9 +6,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -35,7 +37,7 @@ import io.ak1.drawbox.createPath
 import androidx.compose.foundation.layout.Box as Box
 
 @Composable
-fun DrawingCanvas(viewModal : CanvasViewModal  ){
+fun DrawingCanvas(viewModal : CanvasViewModal , paddingValues: PaddingValues ){
 
     var scale by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(0f) }
@@ -45,7 +47,7 @@ fun DrawingCanvas(viewModal : CanvasViewModal  ){
 val ShowValues = "LOG"
 
     Box (
-        modifier = Modifier
+        modifier = Modifier.padding(paddingValues)
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectTransformGestures { centroid, pan, zoom, rotation ->

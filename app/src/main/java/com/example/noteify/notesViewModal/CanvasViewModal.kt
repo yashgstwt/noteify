@@ -92,7 +92,6 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
 
         }
     }
-
     override fun onCleared() {
         selectedCanvas.path = pathList
     }
