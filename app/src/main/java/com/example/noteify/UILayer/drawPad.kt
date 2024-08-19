@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -30,7 +29,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 
 import com.example.noteify.notesViewModal.CanvasViewModal
 import io.ak1.drawbox.createPath
@@ -103,24 +101,31 @@ val ShowValues = "LOG"
             }
             )
         {
+            //remove it after
             drawLine(Color.Red , start = Offset.Zero , end = Offset(0f, size.height), strokeWidth = 5f)
-
+            //draws line on canvas
             drawLine(Color.Blue , start =  Offset.Zero , end = Offset(size.width, 0f), strokeWidth = 5f)
 
             viewModal.selectedCanvas.path.forEach {
                     pw ->
+                var offsetList : MutableList<Offset> = emptyList<Offset>().toMutableList()
                 //.onEach { Log.d(ShowValues, " in drawing phase :: X: ${it.x} + Y: ${it.y}") }
-
-                drawPath(
-                    path = createPath(pw.path) ,
-                    color = Color(pw.color) ,
-                    alpha = pw.alpha,
-                    style = Stroke(
-                        width = pw.strokeWidth,
-                        cap = StrokeCap.Round,
-                        join = StrokeJoin.Round
+                pw?.path?.onEach {
+                val tempOffset :Offset = Offset(it.first,it.second)
+                 offsetList.add(tempOffset)
+                }
+                if (pw != null) {
+                    drawPath(
+                        path = createPath(offsetList) ,
+                        color = Color(pw.color) ,
+                        alpha = pw.alpha,
+                        style = Stroke(
+                            width = pw.strokeWidth,
+                            cap = StrokeCap.Round,
+                            join = StrokeJoin.Round
+                        )
                     )
-                )
+                }
             }
         }
     }

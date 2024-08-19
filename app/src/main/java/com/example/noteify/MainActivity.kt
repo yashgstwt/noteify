@@ -19,6 +19,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             NoteifyTheme {
                 val canvasViewModal : CanvasViewModal by viewModels()
+
                 HomeScreen(canvasViewModal)
 
             }

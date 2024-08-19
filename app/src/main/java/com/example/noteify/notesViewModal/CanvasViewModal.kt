@@ -3,6 +3,7 @@ package com.example.noteify.notesViewModal
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,6 +15,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.noteify.Repository.canvasRepository
 import com.example.noteify.RoomDB.DrawLines
 import com.example.noteify.RoomDB.Route
+import com.example.noteify.RoomDB.defaultRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,18 +28,26 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
 
     var _canvasList = MutableStateFlow(emptyList<Route>())
     var canvasList = _canvasList.asStateFlow()
+    fun addNewCanvas( repository: canvasRepository ) = viewModelScope.launch {
+        repository.insert(Route(id = 0, path = mutableListOf()))
+    }
 
     init {
         viewModelScope.launch {
+            repository.insert(defaultRoute)
             repository.getRoutes().collectLatest {
             _canvasList.tryEmit(it)
+
             }
         }
     }
 
+    var isListIsEmpty  =  canvasList.value.isEmpty()
     var selectedIndex by mutableIntStateOf(0)
 
-    var selectedCanvas  = canvasList.value[selectedIndex]
+    var selectedCanvas  = if(!isListIsEmpty){ canvasList.value[selectedIndex] } else{
+        Route(id = 0, path = mutableListOf())
+    }
 
     private val _undoList = mutableStateListOf<DrawLines>()
     private val _redoList = mutableStateListOf<DrawLines>()
@@ -46,7 +56,7 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
     var bgColor by mutableStateOf(Color.Black)
         private set
 
-    var penColor by  mutableStateOf<Long>( 0xFFFFFFFF)
+    var penColor by  mutableLongStateOf( 0xFFFFFFFF)
         private set
 
     var strokeWidth by  mutableFloatStateOf(5f)
@@ -62,9 +72,11 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
         private set
 
     fun insertNewPath (offset : Offset){
+
+
         val lines = DrawLines(
             id = 0,
-            path = mutableStateListOf(offset),
+            path = mutableStateListOf(Pair(offset.x , offset.y)),
             color = penColor,
             strokeWidth = strokeWidth,
             alpha = alpha
@@ -75,7 +87,7 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
 
     fun updateLatestPath(newPoint : Offset){
         val index = _undoList.lastIndex
-        _undoList[index].path.add(newPoint)
+        _undoList[index].path.add(Pair(newPoint.x , newPoint.y))
     }
 
     fun undo (){
@@ -92,7 +104,9 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
 
         }
     }
+
     override fun onCleared() {
-        selectedCanvas.path = pathList
+        //try changing pathList with undoPathList
+        selectedCanvas.path.addAll(pathList)
     }
 }

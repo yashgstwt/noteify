@@ -1,27 +1,29 @@
 package com.example.noteify.RoomDB
 
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
+import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 
-class OffsetListConverter {
+@ProvidedTypeConverter
+class RouteConverter{
     @TypeConverter
-    fun fromOffsetList(offsets: MutableList<Offset>): String {
-
-        return Json.encodeToString(offsets)
+    fun fromRoute(route: Route ): String {
+        return Json.encodeToString(route)
     }
 
     @TypeConverter
-    fun toOffsetList(value: String): MutableList<Offset> {
-        return Json.decodeFromString(value)
+    fun toRoute(route : String): Route {
+        return Json.decodeFromString(route)
     }
 }
 
-class DrawLinesListConverter{
 
+@ProvidedTypeConverter
+class DrawLinesListConverter {
     @TypeConverter
     fun fromDrawLinesList(drawLines:  MutableList<DrawLines>): String {
     return Json.encodeToString(drawLines)
@@ -31,5 +33,43 @@ class DrawLinesListConverter{
     fun toDrawLinesList(value: String): MutableList<DrawLines>{
         return Json.decodeFromString(value)
     }
-
 }
+@ProvidedTypeConverter
+class DrawLineConverter {
+    @TypeConverter
+    fun fromDrawLine(drawLine: DrawLines): String {
+        return Json.encodeToString(drawLine)
+    }
+    @TypeConverter
+    fun toDrawLine(value: String): DrawLines {
+        return Json.decodeFromString(value)
+    }
+}
+
+
+@ProvidedTypeConverter
+class PairConverter{
+
+    @TypeConverter
+    fun fromPair(pair :Pair<Float,Float>):String{
+        return Json.encodeToString(pair)
+    }
+
+    @TypeConverter
+    fun toPair(value:String): Pair<Float,Float>{
+        return Json.decodeFromString(value)
+    }
+}
+@ProvidedTypeConverter
+class PairListConverter {
+    @TypeConverter
+    fun fromPairList(pairList: MutableList<Pair<Float, Float>>): String {
+        return Json.encodeToString(pairList)
+    }
+
+    @TypeConverter
+    fun toPairList(value: String): MutableList<Pair<Float, Float>> {
+        return Json.decodeFromString(value)
+    }
+}
+
