@@ -6,16 +6,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -28,14 +29,13 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 
 import com.example.noteify.notesViewModal.CanvasViewModal
 import io.ak1.drawbox.createPath
 import androidx.compose.foundation.layout.Box as Box
 
 @Composable
-fun DrawingCanvas(viewModal : CanvasViewModal  ){
+fun DrawingCanvas(viewModal : CanvasViewModal , paddingValues: PaddingValues ){
 
     var scale by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(0f) }
@@ -46,17 +46,18 @@ val ShowValues = "LOG"
 
     Box (
         modifier = Modifier
+            .padding(paddingValues)
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectTransformGestures { centroid, pan, zoom, rotation ->
-                    scale = (scale * zoom).coerceIn(1f, 2f) // Limit zoom between 0.5x and 5x
+                    scale = 1f // Limit zoom between 1x and 2x
                     offsetX += pan.x
                     offsetY += pan.y
 
-//                    Log.d(
-//                        ShowValues,
-//                        "scale : $scale , offsetX : $offsetX  + pan.x ${pan.x} : , offsetY : $offsetY  + pan.y ${pan.y} :"
-//                    )
+                    Log.d(
+                        ShowValues,
+                        "scale : $scale , offsetX : $offsetX  + pan.x ${pan.x} : , offsetY : $offsetY  + pan.y ${pan.y} :"
+                    )
                 }
             }
     ){
@@ -69,10 +70,10 @@ val ShowValues = "LOG"
                         val transformedOffset = Offset(
                             // (OffsetCurrent - original offset) / zoom value = current position
                             // x = (50 - 100) / 2 = 25
-                            (offset.x - offsetX) ,
+                            (offset.x - offsetX),
                             (offset.y - offsetY)
                         )
-                       // currentPointer = transformedOffset
+                        // currentPointer = transformedOffset
 //                        Log.d(
 //                            ShowValues,
 //                            "onDragStart == offset.x : ${offset.x} - offsetX : ${offsetX} / scale :${scale} = ${(offset.x - offsetX) } --  Y:  ${(offset.y - offsetY) / scale} "
@@ -101,34 +102,68 @@ val ShowValues = "LOG"
             }
             )
         {
+            //remove it after
             drawLine(Color.Red , start = Offset.Zero , end = Offset(0f, size.height), strokeWidth = 5f)
-
+            //draws line on canvas
             drawLine(Color.Blue , start =  Offset.Zero , end = Offset(size.width, 0f), strokeWidth = 5f)
 
-            viewModal.selectedCanvas.path.forEach {
+            viewModal.pathList.forEach {
                     pw ->
+                var drawingOffsetList : MutableList<Offset> = emptyList<Offset>().toMutableList()
                 //.onEach { Log.d(ShowValues, " in drawing phase :: X: ${it.x} + Y: ${it.y}") }
-
+                pw?.path?.onEach {
+                    val tempOffset = Offset(it.first,it.second)
+                    drawingOffsetList.add(tempOffset)
+                }
+                val color = if (pw?.color == null) 0xFFFFFFFF else pw.color
+                val windth = if (pw?.strokeWidth == null) 5f else pw.strokeWidth
                 drawPath(
-                    path = createPath(pw.path) ,
-                    color = Color(pw.color) ,
-                    alpha = pw.alpha,
+                    path = createPath(drawingOffsetList) ,
+                    color = Color(color) ,
                     style = Stroke(
-                        width = pw.strokeWidth,
+                        width = windth,
                         cap = StrokeCap.Round,
                         join = StrokeJoin.Round
                     )
                 )
+
             }
+
+
+            viewModal.selectedCanvas.path.forEach {
+                    pw ->
+                var offsetList : MutableList<Offset> = emptyList<Offset>().toMutableList()
+                //.onEach { Log.d(ShowValues, " in drawing phase :: X: ${it.x} + Y: ${it.y}") }
+                pw?.path?.onEach {
+                val tempOffset :Offset = Offset(it.first,it.second)
+                 offsetList.add(tempOffset)
+                }
+                if (pw != null) {
+                    drawPath(
+                        path = createPath(offsetList) ,
+                        color = Color(pw.color) ,
+                        alpha = pw.alpha,
+                        style = Stroke(
+                            width = pw.strokeWidth,
+                            cap = StrokeCap.Round,
+                            join = StrokeJoin.Round
+                        )
+                    )
+                }
+            }
+
         }
     }
 
-    Row(modifier= Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly , verticalAlignment = Alignment.Bottom) {
+    Row(modifier= Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceEvenly , verticalAlignment = Alignment.Bottom) {
         Button(onClick = { viewModal.undo() }, Modifier.size(80.dp,40.dp)) {
             Text(text = "undo")
         }
         Button(onClick = {viewModal.redo() }, Modifier.size(80.dp, 40.dp)) {
             Text(text = "redo")
+        }
+        Button(onClick = { viewModal.updateRoute() },Modifier.size(80.dp, 40.dp)) {
+            Text(text = "Update")
         }
     }
 }

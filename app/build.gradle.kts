@@ -4,7 +4,8 @@ plugins {
     id("androidx.room")
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
-    kotlin("plugin.serialization") version "1.8.22"
+    //kotlin("plugin.serialization") version "1.8.22"
+    id ("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -83,9 +84,10 @@ annotationProcessor(libs.androidx.room.compiler)
 
 
     // To use Kotlin annotation processing tool (kapt)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+
 }
 kapt {
     correctErrorTypes = true

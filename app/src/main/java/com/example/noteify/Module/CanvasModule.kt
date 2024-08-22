@@ -3,6 +3,7 @@ package com.example.noteify.Module
 import android.app.Application
 import androidx.room.Room
 import com.example.noteify.Repository.canvasRepository
+import com.example.noteify.RoomDB.DataConverters
 import com.example.noteify.RoomDB.NoteifyDB
 import dagger.Module
 import dagger.Provides
@@ -17,7 +18,10 @@ object CanvasModule {
     @Provides
     @Singleton
     fun provideDataBase (app :Application ) : NoteifyDB {
-        return Room.databaseBuilder(app , NoteifyDB::class.java , "NoteifyDB").build()
+        return Room
+            .databaseBuilder(app , NoteifyDB::class.java , "NoteifyDB")
+            .addTypeConverter( DataConverters())
+            .build()
     }
 
     @Provides

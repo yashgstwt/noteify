@@ -6,9 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface canvasInterface {
     suspend fun getRoutes() :Flow<List<Route>>
-
     suspend fun insert(drawLines: Route)
-
+    suspend fun insertDrawLine(drawLine:DrawLines)
     suspend fun delete(drawLines: Route)
 
 }
