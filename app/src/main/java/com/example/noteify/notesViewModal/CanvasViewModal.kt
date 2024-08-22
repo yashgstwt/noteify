@@ -1,5 +1,6 @@
 package com.example.noteify.notesViewModal
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -25,7 +26,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewModel() {
+    var loge = "CanvasViewModal"
+    val Repository :canvasRepository = repository
 
+    //used for displaying list of routes
     var _canvasList = MutableStateFlow(emptyList<Route>())
     var canvasList = _canvasList.asStateFlow()
     fun addNewCanvas( repository: canvasRepository ) = viewModelScope.launch {
@@ -33,8 +37,9 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
     }
 
     init {
+        Log.d(loge , "init called of viewModal")
         viewModelScope.launch {
-            repository.insert(defaultRoute)
+          //  repository.insert(defaultRoute)
             repository.getRoutes().collectLatest {
             _canvasList.tryEmit(it)
 
@@ -49,10 +54,10 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
         Route(id = 0, path = mutableListOf())
     }
 
-    private val _undoList = mutableStateListOf<DrawLines>()
-    private val _redoList = mutableStateListOf<DrawLines>()
-    private val pathList : SnapshotStateList<DrawLines> = _undoList
-
+    private val _undoList = mutableStateListOf<DrawLines?>()
+    private val _redoList = mutableStateListOf<DrawLines?>()
+    val pathList : SnapshotStateList<DrawLines?> = _undoList
+    private val _pathList : MutableList<DrawLines?> = pathList
     var bgColor by mutableStateOf(Color.Black)
         private set
 
@@ -87,7 +92,7 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
 
     fun updateLatestPath(newPoint : Offset){
         val index = _undoList.lastIndex
-        _undoList[index].path.add(Pair(newPoint.x , newPoint.y))
+        _undoList[index]?.path?.add(Pair(newPoint.x , newPoint.y))
     }
 
     fun undo (){
@@ -105,8 +110,24 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
         }
     }
 
-    override fun onCleared() {
-        //try changing pathList with undoPathList
-        selectedCanvas.path.addAll(pathList)
+
+    fun updateRoute(){
+        viewModelScope.launch {
+            Repository.DAO.insert(Route(id = selectedIndex , path = _pathList))
+        }
+
+        Log.d(loge , "onCleared is called from viewModal : ${pathList}")
     }
+
+
+//    override fun onCleared() {
+//        //try changing pathList with undoPathList
+//
+//        viewModelScope.launch {
+//            Repository.DAO.insert(Route(id = selectedIndex , path = _pathList))
+//        }
+//
+//        Log.d(loge , "onCleared is called from viewModal : ${pathList}")
+//    }
+
 }

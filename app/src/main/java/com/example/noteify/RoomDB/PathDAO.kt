@@ -16,6 +16,9 @@ interface PathDAO {
     @Delete
     suspend fun delete(line : Route)
 
+    @Upsert
+    suspend fun insertDrawLine(drawLine:DrawLines)
+
     @Query("Select * from Route ")
     fun getAllPaths(): Flow<List<Route>>
 

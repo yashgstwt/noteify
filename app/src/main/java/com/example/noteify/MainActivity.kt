@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.unit.dp
 import com.example.noteify.UILayer.DrawingCanvas
 import com.example.noteify.UILayer.HomeScreen
 import com.example.noteify.notesViewModal.CanvasViewModal
@@ -20,7 +22,7 @@ class MainActivity : ComponentActivity() {
             NoteifyTheme {
                 val canvasViewModal : CanvasViewModal by viewModels()
 
-                HomeScreen(canvasViewModal)
+                DrawingCanvas(canvasViewModal, paddingValues = PaddingValues(0.dp))
 
             }
         }

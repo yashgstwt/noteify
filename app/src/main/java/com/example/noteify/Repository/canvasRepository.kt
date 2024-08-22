@@ -17,6 +17,10 @@ class canvasRepository @Inject constructor (val DAO : PathDAO):canvasInterface {
        withContext(Dispatchers.IO){DAO.insert(route)}
     }
 
+    override suspend fun insertDrawLine(drawLine: DrawLines) {
+         withContext(Dispatchers.IO){DAO.insertDrawLine(drawLine)}
+    }
+
     override suspend fun delete(route: Route){
         withContext(Dispatchers.IO){DAO.delete(route)}
     }

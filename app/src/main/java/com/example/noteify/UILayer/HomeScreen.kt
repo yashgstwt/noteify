@@ -1,6 +1,7 @@
 package com.example.noteify.UILayer
 
 import android.util.Log
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -18,7 +19,7 @@ import com.example.noteify.notesViewModal.CanvasViewModal
 @Composable
 fun HomeScreen(viewModal: CanvasViewModal ) {
 
-    Surface(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
 Log.d("test from main " , "home screen is opened ")
         Scaffold( floatingActionButton = {
             FloatingActionButton(onClick = { }) {
