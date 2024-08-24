@@ -1,9 +1,7 @@
 package com.example.noteify.RoomDB
 
-import androidx.compose.ui.geometry.Offset
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -85,7 +83,6 @@ class DataConverters{
         return Json.decodeFromString(value)
     }
 
-
     @TypeConverter
     fun fromPair(pair :Pair<Float,Float>):String{
         return Json.encodeToString(pair)
@@ -104,12 +101,12 @@ class DataConverters{
         return Json.decodeFromString(value)
     }
     @TypeConverter
-    fun fromDrawLinesList(drawLines:  MutableList<DrawLines>): String {
+    fun fromDrawLinesList(drawLines:  MutableList<DrawLines?>): String {
         return Json.encodeToString(drawLines)
     }
 
     @TypeConverter
-    fun toDrawLinesList(value: String): MutableList<DrawLines>{
+    fun toDrawLinesList(value: String ): MutableList<DrawLines?>{
         return Json.decodeFromString(value)
     }
 
