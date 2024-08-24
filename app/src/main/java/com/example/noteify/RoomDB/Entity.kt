@@ -1,12 +1,9 @@
 package com.example.noteify.RoomDB
 
 
-import androidx.compose.ui.geometry.Offset
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
 
 
 @Entity
@@ -14,7 +11,7 @@ import kotlinx.serialization.Serializer
 data class Route(
     @PrimaryKey(autoGenerate = true)
     val id : Int = 0,
-    var path: MutableList <DrawLines?>,
+    var path: String? = null ,
 )
 
 @Entity
@@ -30,4 +27,3 @@ data class DrawLines(
 
 
 
-var defaultRoute: Route = Route(0, mutableListOf<DrawLines?>(DrawLines(0, mutableListOf<Pair<Float, Float>>(Pair(0f,0f)),0xFFFFFFFF,5f,1f)))

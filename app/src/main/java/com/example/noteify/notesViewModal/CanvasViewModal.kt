@@ -14,9 +14,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.noteify.Repository.canvasRepository
+import com.example.noteify.RoomDB.DataConverters
 import com.example.noteify.RoomDB.DrawLines
 import com.example.noteify.RoomDB.Route
-import com.example.noteify.RoomDB.defaultRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,9 +32,10 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
     //used for displaying list of routes
     var _canvasList = MutableStateFlow(emptyList<Route>())
     var canvasList = _canvasList.asStateFlow()
-    fun addNewCanvas( repository: canvasRepository ) = viewModelScope.launch {
-        repository.insert(Route(id = 0, path = mutableListOf()))
-    }
+
+//    fun addNewCanvas( repository: canvasRepository ) = viewModelScope.launch {
+//        repository.insert(Route(id = 0, path = mutableListOf()))
+//    }
 
     init {
         Log.d(loge , "init called of viewModal")
@@ -50,8 +51,8 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
     var isListIsEmpty  =  canvasList.value.isEmpty()
     var selectedIndex by mutableIntStateOf(0)
 
-    var selectedCanvas  = if(!isListIsEmpty){ canvasList.value[selectedIndex] } else{
-        Route(id = 0, path = mutableListOf())
+    var selectedCanvas  = if(!isListIsEmpty){ canvasList.value[selectedIndex] } else {
+        Route(id = 0, path = null )
     }
 
     private val _undoList = mutableStateListOf<DrawLines?>()
@@ -113,8 +114,10 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
 
     fun updateRoute(){
         viewModelScope.launch {
-            Repository.DAO.insert(Route( path = _pathList))
-            Log.d(loge , "list is added in db ${_pathList}")
+           val StringConverter = DataConverters().fromDrawLinesList(_pathList)
+
+            Repository.DAO.insert(Route( path =StringConverter ))
+            Log.d(loge , "list is added in db ${StringConverter}")
         }
 
         Log.d(loge , "onCleared is called from viewModal :${_pathList}")
