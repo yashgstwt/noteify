@@ -113,10 +113,11 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
 
     fun updateRoute(){
         viewModelScope.launch {
-            Repository.DAO.insert(Route(id = selectedIndex , path = _pathList))
+            Repository.DAO.insert(Route( path = _pathList))
+            Log.d(loge , "list is added in db ${_pathList}")
         }
 
-        Log.d(loge , "onCleared is called from viewModal : ${pathList}")
+        Log.d(loge , "onCleared is called from viewModal :${_pathList}")
     }
 
 

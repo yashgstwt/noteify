@@ -88,6 +88,13 @@ annotationProcessor(libs.androidx.room.compiler)
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
 
+
+    testImplementation ("junit:junit:4.13.2")// Or latest version
+    androidTestImplementation ("androidx.test.ext:junit:1.2.1") // Or latest version
+    androidTestImplementation ("androidx.test.espresso:espresso-core:3.6.1")
+
+    testImplementation ("com.google.truth:truth:1.1.3")
+
 }
 kapt {
     correctErrorTypes = true
