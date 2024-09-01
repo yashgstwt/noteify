@@ -8,7 +8,6 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -18,10 +17,10 @@ import com.example.noteify.RoomDB.DataConverters
 import com.example.noteify.RoomDB.DrawLines
 import com.example.noteify.RoomDB.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,40 +28,51 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
     var loge = "CanvasViewModal"
     val Repository :canvasRepository = repository
 
-    //used for displaying list of routes
-    var _canvasList = MutableStateFlow(emptyList<Route>())
-    var canvasList = _canvasList.asStateFlow()
+    var insertList : MutableList<DrawLines?> = mutableListOf()
 
-//    fun addNewCanvas( repository: canvasRepository ) = viewModelScope.launch {
-//        repository.insert(Route(id = 0, path = mutableListOf()))
-//    }
+    var canvasList  : MutableList<Route> = mutableListOf()
+
+
+    private val latch = CountDownLatch(1) // Initialize latch with count 1
 
     init {
-        Log.d(loge , "init called of viewModal")
-        viewModelScope.launch {
-          //  repository.insert(defaultRoute)
+        Log.d(loge, "init called of viewModal")
+            viewModelScope.launch {
             repository.getRoutes().collectLatest {
-            _canvasList.tryEmit(it)
-
+                it.forEach { route ->
+                    canvasList.add(route)
+                }
+                latch.countDown() // Decrement latch count when collection is done
             }
         }
     }
 
-    var isListIsEmpty  =  canvasList.value.isEmpty()
-    var selectedIndex by mutableIntStateOf(0)
 
-    var selectedCanvas  = if(!isListIsEmpty){ canvasList.value[selectedIndex] } else {
-        Route(id = 0, path = null )
+    var selectedIndex by mutableIntStateOf(0)
+    var selectedCanvas =  Route(id = 1, path = null )
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            latch.await() // Wait for latch to reach zero
+
+             selectedCanvas  = if(!canvasList.isEmpty()){ canvasList[selectedIndex] } else {
+                Route(id = 1, path = null )
+            }
+            for (i in canvasList) {
+                Log.d(loge, "CANVAS LIST IS :   ${i.id} :  ${i.path} \n  ")
+            }
+        }
     }
+
+
 
     private val _undoList = mutableStateListOf<DrawLines?>()
     private val _redoList = mutableStateListOf<DrawLines?>()
-    val pathList : SnapshotStateList<DrawLines?> = _undoList
-    private val _pathList : MutableList<DrawLines?> = pathList
+            val _pathList : MutableList<DrawLines?> = _undoList
+
     var bgColor by mutableStateOf(Color.Black)
         private set
 
-    var penColor by  mutableLongStateOf( 0xFFFFFFFF)
+    var penColor by  mutableLongStateOf(0xFFFFFFFF)
         private set
 
     var strokeWidth by  mutableFloatStateOf(5f)
@@ -71,14 +81,8 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
     var alpha by mutableFloatStateOf(1f)
         private set
 
-    var undoCount by mutableIntStateOf(0)
-        private set
-
-    var redoCount by mutableIntStateOf(0)
-        private set
 
     fun insertNewPath (offset : Offset){
-
 
         val lines = DrawLines(
             id = 0,
@@ -114,13 +118,18 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
 
     fun updateRoute(){
         viewModelScope.launch {
-           val StringConverter = DataConverters().fromDrawLinesList(_pathList)
 
-            Repository.DAO.insert(Route( path =StringConverter ))
-            Log.d(loge , "list is added in db ${StringConverter}")
+            _pathList.forEach { value ->
+                insertList.add(value)
+            }
+
+           val StringConverter = DataConverters().fromDrawLinesList(insertList)
+
+            Repository.DAO.insert(Route(id = 1, path =StringConverter ))
+
         }
 
-        Log.d(loge , "onCleared is called from viewModal :${_pathList}")
+
     }
 
 
@@ -133,5 +142,12 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
 //
 //        Log.d(loge , "onCleared is called from viewModal : ${pathList}")
 //    }
+
+
+    //    fun addNewCanvas( repository: canvasRepository ) = viewModelScope.launch {
+//        repository.insert(Route(id = 0, path = mutableListOf()))
+//    }
+
+
 
 }

@@ -25,5 +25,8 @@ data class DrawLines(
     var alpha: Float = 1f
 )
 
-
+data class TempRoute(
+    val id: Int = 0 ,
+    var path : List<DrawLines?>
+)
 

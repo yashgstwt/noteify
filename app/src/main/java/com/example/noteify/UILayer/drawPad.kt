@@ -106,7 +106,7 @@ val ShowValues = "LOG"
             //draws line on canvas
             drawLine(Color.Blue , start =  Offset.Zero , end = Offset(size.width, 0f), strokeWidth = 5f)
 
-            viewModal.pathList.forEach {
+            viewModal._pathList.forEach {
                     pw ->
                 var drawingOffsetList : MutableList<Offset> = emptyList<Offset>().toMutableList()
                 //.onEach { Log.d(ShowValues, " in drawing phase :: X: ${it.x} + Y: ${it.y}") }
@@ -125,18 +125,22 @@ val ShowValues = "LOG"
                         join = StrokeJoin.Round
                     )
                 )
-
             }
+
+
+
             val DrawLinesList = viewModal.selectedCanvas.path?.let {
                 DataConverters().toDrawLinesList(it)
             }
-
+            var offsetList : MutableList<Offset> = emptyList<Offset>().toMutableList()
             DrawLinesList?.forEach {
                     pw ->
-                var offsetList : MutableList<Offset> = emptyList<Offset>().toMutableList()
-                //.onEach { Log.d(ShowValues, " in drawing phase :: X: ${it.x} + Y: ${it.y}") }
+
+              viewModal.insertList.add(pw)
+
                 pw?.path?.onEach {
-                val tempOffset :Offset = Offset(it.first,it.second)
+
+                 val tempOffset :Offset = Offset(it.first,it.second)
                  offsetList.add(tempOffset)
                 }
                 if (pw != null) {
@@ -151,6 +155,7 @@ val ShowValues = "LOG"
                         )
                     )
                 }
+                offsetList.clear()
             }
         }
     }

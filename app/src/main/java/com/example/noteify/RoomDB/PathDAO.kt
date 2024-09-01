@@ -3,7 +3,6 @@ package com.example.noteify.RoomDB
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
-import androidx.room.TypeConverter
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
@@ -18,6 +17,9 @@ interface PathDAO {
 
     @Upsert
     suspend fun insertDrawLine(drawLine:DrawLines)
+
+    @Query("DELETE FROM Route WHERE id = :routeId")
+    suspend fun deleteRouteById(routeId: Int)
 
     @Query("Select * from Route ")
     fun getAllPaths(): Flow<List<Route>>
