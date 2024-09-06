@@ -95,6 +95,9 @@ annotationProcessor(libs.androidx.room.compiler)
 
     testImplementation ("com.google.truth:truth:1.1.3")
 
+    // for accessing file permission
+    implementation ("com.google.accompanist:accompanist-permissions:0.28.0")
+
 }
 kapt {
     correctErrorTypes = true

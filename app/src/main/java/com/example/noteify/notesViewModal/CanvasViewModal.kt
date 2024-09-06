@@ -1,5 +1,6 @@
 package com.example.noteify.notesViewModal
 
+import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -8,9 +9,10 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.noteify.Repository.canvasRepository
 import com.example.noteify.RoomDB.DataConverters
@@ -20,11 +22,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.IOException
 import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
 
 @HiltViewModel
-class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewModel() {
+class CanvasViewModal @Inject constructor (repository: canvasRepository , application: Application) : AndroidViewModel(application) {
     var loge = "CanvasViewModal"
     val Repository :canvasRepository = repository
 
@@ -36,7 +40,7 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
     private val latch = CountDownLatch(1) // Initialize latch with count 1
 
     init {
-        Log.d(loge, "init called of viewModal")
+
             viewModelScope.launch {
             repository.getRoutes().collectLatest {
                 it.forEach { route ->
@@ -57,9 +61,6 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
              selectedCanvas  = if(!canvasList.isEmpty()){ canvasList[selectedIndex] } else {
                 Route(id = 1, path = null )
             }
-            for (i in canvasList) {
-                Log.d(loge, "CANVAS LIST IS :   ${i.id} :  ${i.path} \n  ")
-            }
         }
     }
 
@@ -67,7 +68,8 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
 
     private val _undoList = mutableStateListOf<DrawLines?>()
     private val _redoList = mutableStateListOf<DrawLines?>()
-            val _pathList : MutableList<DrawLines?> = _undoList
+    val pathList : SnapshotStateList<DrawLines?> = _undoList
+            val _pathList : MutableList<DrawLines?> = pathList
 
     var bgColor by mutableStateOf(Color.Black)
         private set
@@ -116,6 +118,7 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
     }
 
 
+
     fun updateRoute(){
         viewModelScope.launch {
 
@@ -123,31 +126,75 @@ class CanvasViewModal @Inject constructor (repository: canvasRepository) : ViewM
                 insertList.add(value)
             }
 
+            //Repository.DAO.deleteRouteById(1)
+
            val StringConverter = DataConverters().fromDrawLinesList(insertList)
 
-            Repository.DAO.insert(Route(id = 1, path =StringConverter ))
+                var path = if(selectedCanvas.path != null){
+                    selectedCanvas.path
+                }else{
+                    "/test.txt"
+                }
+            Log.d("LOGT", " PAth : ${path}------------------------------------------------------------------------")
+                try {
+                    val file = File(path ).also {
+                        Log.d("LOGT", " DOES File exist : ${it.exists()}------------------------------------------------------------------------")
 
+
+
+                        it.exists() }
+
+                        Log.d("LOGy", "file exists ????????????????????????????????????????????????????????? ${StringConverter}")
+                        file.writeText(StringConverter).also {
+                            Log.d("LOGy" , " String written in the File :::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+                        }
+
+                } catch (e: IOException) {
+                    print("??????????????????????????????????" + e)
+                }
+           // Repository.DAO.insert(line = Route(path = path, name = "test1", text = "successfully added text to database"))
+        }
+
+    }
+
+
+    fun readRouteFile(path : String) : String? {
+
+        return try {
+            val file = File(path)
+            file.readText()
+        } catch (e: IOException) {
+            Log.d("LOGV" , "$e   ::: from read file :::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+
+            null
+        }
+    }
+
+    fun insertNewRouteFile(path : String){
+
+        val file = File(getApplication<Application>().filesDir,"$path.txt")
+
+        try{
+            file.createNewFile()
+
+            viewModelScope.launch {
+                Repository.DAO.insert(Route( path = file.path,name = "test1", text = "successfully added text to database" ))
+
+            }
+        }catch (e: IOException) {
+            Log.d("LOGy" , "$e :::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
         }
 
 
     }
 
 
-//    override fun onCleared() {
-//        //try changing pathList with undoPathList
-//
-//        viewModelScope.launch {
-//            Repository.DAO.insert(Route(id = selectedIndex , path = _pathList))
-//        }
-//
-//        Log.d(loge , "onCleared is called from viewModal : ${pathList}")
-//    }
-
-
-    //    fun addNewCanvas( repository: canvasRepository ) = viewModelScope.launch {
-//        repository.insert(Route(id = 0, path = mutableListOf()))
-//    }
-
-
+    fun deleteRouteById( ){
+        viewModelScope.launch {
+            for (i in 1..2){
+                Repository.DAO.deleteRouteById(i)
+            }
+        }
+    }
 
 }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "10e1f2e2d7bfb59012720205881cc687",
+    "identityHash": "fd59f78c91ee5da5bc6fbe200df3d9f1",
     "entities": [
       {
         "tableName": "DrawLines",
@@ -50,7 +50,7 @@
       },
       {
         "tableName": "Route",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `path` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `path` TEXT, `name` TEXT NOT NULL, `text` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -63,6 +63,18 @@
             "columnName": "path",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -78,7 +90,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '10e1f2e2d7bfb59012720205881cc687')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fd59f78c91ee5da5bc6fbe200df3d9f1')"
     ]
   }
 }

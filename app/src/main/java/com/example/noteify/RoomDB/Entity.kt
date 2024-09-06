@@ -12,6 +12,8 @@ data class Route(
     @PrimaryKey(autoGenerate = true)
     val id : Int = 0,
     var path: String? = null ,
+    var name : String = "",
+    var text : String = ""
 )
 
 @Entity
@@ -27,6 +29,8 @@ data class DrawLines(
 
 data class TempRoute(
     val id: Int = 0 ,
-    var path : List<DrawLines?>
+    var path : List<List<DrawLines?>>,
+    var name : String = "",
+    var text : String = ""
 )
 

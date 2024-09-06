@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.example.noteify.RoomDB.DataConverters
 import com.example.noteify.notesViewModal.CanvasViewModal
 import io.ak1.drawbox.createPath
+import java.io.File
 
 @Composable
 fun DrawingCanvas(viewModal : CanvasViewModal , paddingValues: PaddingValues ){
@@ -53,10 +54,6 @@ val ShowValues = "LOG"
                     offsetX += pan.x
                     offsetY += pan.y
 
-                    Log.d(
-                        ShowValues,
-                        "scale : $scale , offsetX : $offsetX  + pan.x ${pan.x} : , offsetY : $offsetY  + pan.y ${pan.y} :"
-                    )
                 }
             }
     ){
@@ -72,11 +69,6 @@ val ShowValues = "LOG"
                             (offset.x - offsetX),
                             (offset.y - offsetY)
                         )
-                        // currentPointer = transformedOffset
-//                        Log.d(
-//                            ShowValues,
-//                            "onDragStart == offset.x : ${offset.x} - offsetX : ${offsetX} / scale :${scale} = ${(offset.x - offsetX) } --  Y:  ${(offset.y - offsetY) / scale} "
-//                        )
                         viewModal.insertNewPath(transformedOffset)
                     },
                     onDrag = { change, _ ->
@@ -130,8 +122,24 @@ val ShowValues = "LOG"
 
 
             val DrawLinesList = viewModal.selectedCanvas.path?.let {
-                DataConverters().toDrawLinesList(it)
+
+
+              Log.d(ShowValues , ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> : ${viewModal.selectedCanvas.path}")
+                Log.d(ShowValues, " >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<${ File(viewModal.selectedCanvas.path).exists() }")
+                val strValue = viewModal.readRouteFile(it)
+                if (strValue!= null && strValue.isNotEmpty()){
+                    Log.d(ShowValues, "strValue : $strValue")
+
+
+                    DataConverters().toDrawLinesList(strValue)
+                }else{
+                    Log.d(ShowValues, " [][][][][][][][][][[][][][][][][][[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[strValue : null hay ")
+                    emptyList()
+
+                }
+
             }
+
             var offsetList : MutableList<Offset> = emptyList<Offset>().toMutableList()
             DrawLinesList?.forEach {
                     pw ->
@@ -161,10 +169,10 @@ val ShowValues = "LOG"
     }
 
     Row(modifier= Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceEvenly , verticalAlignment = Alignment.Bottom) {
-        Button(onClick = { viewModal.undo() }, Modifier.size(80.dp,40.dp)) {
+        Button(onClick = { viewModal.deleteRouteById() }, Modifier.size(80.dp,40.dp)) {
             Text(text = "undo")
         }
-        Button(onClick = {viewModal.redo() }, Modifier.size(80.dp, 40.dp)) {
+        Button(onClick = {viewModal.insertNewRouteFile("Insertion2") }, Modifier.size(80.dp, 40.dp)) {
             Text(text = "redo")
         }
         Button(onClick = { viewModal.updateRoute() },Modifier.size(80.dp, 40.dp)) {
